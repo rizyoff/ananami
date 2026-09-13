@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ananami Landscape — Company Profile</title>
+<style>
+  :root{
+    --bg: #0a0d09;
+    --panel: #10140f;
+    --line: rgba(184, 214, 130, 0.18);
+    --accent: #9fd356;
+    --accent-dim: #6f9b3f;
+    --text: #eef2e8;
+    --text-dim: #9aa693;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Top bar + top nav ---------- */
+  header.topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(10,13,9,0.35);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid transparent;
+    transition:
+      background .45s ease,
+      border-color .45s ease,
+      box-shadow .45s ease,
+      padding .35s ease;
+  }
+  header.topbar.is-scrolled{
+    background:rgba(10,13,9,0.92);
+    border-bottom-color:var(--line);
+    box-shadow:0 12px 40px rgba(0,0,0,0.35);
+  }
+  .topbar__main{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 20px 10px;
+  }
+  @media(min-width:721px){
+    .topbar__main{ padding:14px 28px 10px; }
+  }
+  .topbar__utils{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-shrink:0;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    letter-spacing:0.12em;
+    font-size:14px;
+    font-weight:600;
+  }
+  .brand span.leaf{color:var(--accent);}
+  .brand small{
+    display:block;
+    font-size:9px;
+    letter-spacing:0.28em;
+    color:var(--text-dim);
+    font-weight:400;
+  }
+  .progress-wrap{
+    flex:1;
+    max-width:340px;
+    margin:0 28px;
+    height:2px;
+    background:var(--line);
+    position:relative;
+    display:none;
+  }
+  @media(min-width:720px){ .progress-wrap{display:block;} }
+  .progress-bar{
+    position:absolute; left:0; top:0; height:100%;
+    background:var(--accent);
+    width:0%;
+    transition:width .1s linear;
+  }
+  .pagecount{
+    font-size:12px;
+    color:var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width:56px;
+    text-align:right;
+  }
+  .pagecount strong{color:var(--accent); font-weight:600; display:inline-block; transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+  .pagecount strong.bump{transform:scale(1.35);}
+
+  /* ---------- Floating leaf particles ---------- */
+  .leaf-field{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:1;
+    overflow:hidden;
+  }
+  .leaf-particle{
+    position:absolute;
+    top:-6vh;
+    opacity:0;
+    animation: leafFall linear infinite;
+  }
+  @keyframes leafFall{
+    0%{ opacity:0; transform:translateY(0) translateX(0) rotate(0deg); }
+    8%{ opacity:.55; }
+    92%{ opacity:.4; }
+    100%{ opacity:0; transform:translateY(112vh) translateX(var(--drift,60px)) rotate(300deg); }
+  }
+  @media (prefers-reduced-motion: reduce){ .leaf-field{display:none;} }
+
+  /* ---------- Top navigation links ---------- */
+  nav.topnav{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    padding:0 20px 12px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  nav.topnav::-webkit-scrollbar{ display:none; }
+  @media(min-width:721px){ nav.topnav{ padding:0 28px 12px; gap:6px; } }
+  nav.topnav .topnav-indicator{
+    position:absolute;
+    left:0;
+    bottom:8px;
+    height:2px;
+    width:0;
+    background:var(--accent);
+    border-radius:2px;
+    transform:translateX(0);
+    transition: transform .4s cubic-bezier(.16,.8,.24,1), width .4s cubic-bezier(.16,.8,.24,1), opacity .3s ease;
+    opacity:0;
+    pointer-events:none;
+  }
+  nav.topnav a{
+    position:relative;
+    z-index:1;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    text-decoration:none;
+    color:var(--text-dim);
+    font-size:11px;
+    letter-spacing:0.02em;
+    padding:8px 10px;
+    border-radius:4px;
+    white-space:nowrap;
+    transition: color .2s ease, background .2s ease;
+  }
+  @media(min-width:900px){
+    nav.topnav a{ font-size:12px; padding:8px 12px; }
+  }
+  nav.topnav a .num{
+    font-size:10px;
+    color:var(--accent-dim);
+    font-variant-numeric:tabular-nums;
+  }
+  nav.topnav a:hover{
+    color:var(--text);
+    background:rgba(159,211,86,0.06);
+  }
+  nav.topnav a.active{ color:var(--text); }
+  nav.topnav a.active .num{ color:var(--accent); }
+
+  .nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    gap:5px;
+    width:44px;
+    height:44px;
+    padding:10px;
+    margin:-6px -8px -6px 0;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:rgba(16,20,15,0.6);
+    cursor:pointer;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .nav-toggle:hover{ border-color:var(--accent-dim); background:var(--panel); }
+  .nav-toggle__bar{
+    display:block;
+    height:2px;
+    width:100%;
+    background:var(--text);
+    border-radius:2px;
+    transition: transform .3s ease, opacity .2s ease;
+  }
+  .nav-toggle.is-active .nav-toggle__bar:nth-child(1){
+    transform:translateY(7px) rotate(45deg);
+  }
+  .nav-toggle.is-active .nav-toggle__bar:nth-child(2){ opacity:0; }
+  .nav-toggle.is-active .nav-toggle__bar:nth-child(3){
+    transform:translateY(-7px) rotate(-45deg);
+  }
+
+  .topnav-backdrop{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:48;
+    background:rgba(0,0,0,0.55);
+    opacity:0;
+    transition:opacity .35s ease;
+    pointer-events:none;
+  }
+  .topnav-backdrop.is-visible{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  @media(max-width:900px){
+    .nav-toggle{ display:flex; }
+    nav.topnav{
+      position:fixed;
+      left:0;
+      right:0;
+      top:var(--topbar-h, 56px);
+      bottom:0;
+      z-index:49;
+      flex-direction:column;
+      align-items:stretch;
+      gap:0;
+      padding:12px 16px 32px;
+      overflow-y:auto;
+      overflow-x:hidden;
+      background:rgba(10,13,9,0.97);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-bottom:none;
+      border-top:1px solid var(--line);
+      transform:translateY(-8px);
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition: opacity .35s ease, transform .35s cubic-bezier(.16,.8,.24,1), visibility .35s;
+    }
+    nav.topnav.is-open{
+      transform:translateY(0);
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+    nav.topnav a{
+      font-size:14px;
+      padding:14px 12px;
+      border-bottom:1px solid var(--line);
+      border-radius:0;
+      white-space:normal;
+    }
+    nav.topnav .topnav-indicator{
+      left:12px;
+      width:calc(100% - 24px) !important;
+      bottom:auto;
+      top:0;
+      height:0;
+      border-left:2px solid var(--accent);
+      background:linear-gradient(90deg, rgba(159,211,86,0.10), transparent);
+      transform:translateY(0) !important;
+    }
+    .topnav-backdrop{ display:block; }
+    .brand small{ display:none; }
+  }
+  body.nav-open{ overflow:hidden; }
+
+  /* ---------- Dot rail navigation ---------- */
+  .dotnav{
+    position:fixed;
+    right:20px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:12px;
+    z-index:45;
+  }
+  .dotnav .dot{
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--line);
+    cursor:pointer;
+    transition: background .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+    position:relative;
+  }
+  .dotnav .dot::after{
+    content:attr(data-title);
+    position:absolute;
+    right:20px; top:50%;
+    transform:translateY(-50%) translateX(6px);
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:5px 10px;
+    border-radius:3px;
+    font-size:11px;
+    white-space:nowrap;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .dotnav .dot:hover::after{ opacity:1; transform:translateY(-50%) translateX(0); }
+  .dotnav .dot:hover{ background:var(--accent-dim); transform:scale(1.3); }
+  .dotnav .dot.active{ background:var(--accent); transform:scale(1.5); }
+  @media(max-width:560px){ .dotnav{display:none;} }
+
+  /* ---------- Frame tilt + cursor spotlight ---------- */
+  section.page .frame{
+    transform-style:preserve-3d;
+    transition: transform .35s cubic-bezier(.16,.8,.24,1), box-shadow .35s ease;
+    cursor:zoom-in;
+  }
+  section.page .frame::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%), rgba(159,211,86,0.18), transparent 60%);
+    opacity:0;
+    transition:opacity .3s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  section.page .frame:hover::before{ opacity:1; }
+  section.page .frame:hover{ box-shadow: 0 40px 80px -30px rgba(0,0,0,0.8); }
+  section.page .frame .zoom-hint{
+    position:absolute;
+    bottom:14px; right:14px;
+    background:rgba(10,13,9,0.75);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:6px 12px;
+    border-radius:20px;
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .3s ease, transform .3s ease;
+    z-index:3;
+    pointer-events:none;
+  }
+  section.page .frame:hover .zoom-hint{ opacity:1; transform:none; }
+
+  /* ---------- Lightbox ---------- */
+  .lightbox{
+    position:fixed; inset:0;
+    background:rgba(4,6,3,0.94);
+    display:flex; align-items:center; justify-content:center;
+    padding:50px;
+    z-index:200;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  .lightbox.open{ opacity:1; pointer-events:auto; }
+  .lightbox img{
+    max-width:92vw;
+    max-height:88vh;
+    border-radius:4px;
+    box-shadow:0 50px 100px rgba(0,0,0,0.7);
+    transform:scale(.92) translateY(16px);
+    transition:transform .4s cubic-bezier(.16,.8,.24,1);
+    cursor:zoom-in;
+  }
+  .lightbox.open img{ transform:scale(1) translateY(0); }
+  .lightbox img.zoomed{ cursor:zoom-out; transform:scale(1.55) translateY(0); max-width:none; max-height:none; }
+  .lb-close, .lb-nav{
+    position:fixed;
+    background:rgba(16,20,15,0.85);
+    border:1px solid var(--line);
+    color:var(--text);
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+    transition:transform .2s ease, background .2s ease;
+    z-index:210;
+  }
+  .lb-close:hover, .lb-nav:hover{ background:var(--accent); color:#0a0d09; transform:scale(1.08); }
+  .lb-close{ top:26px; right:28px; }
+  .lb-prev{ left:24px; top:50%; transform:translateY(-50%); }
+  .lb-next{ right:24px; top:50%; transform:translateY(-50%); }
+  .lb-prev:hover, .lb-next:hover{ transform:translateY(-50%) scale(1.08); }
+  .lb-caption{
+    position:fixed;
+    bottom:26px; left:50%;
+    transform:translateX(-50%);
+    color:var(--text-dim);
+    font-size:12px;
+    letter-spacing:0.04em;
+    z-index:210;
+  }
+  @media(max-width:640px){
+    .lb-prev, .lb-next{ display:none; }
+    .lightbox{ padding:20px; }
+  }
+
+  /* ---------- Layout ---------- */
+  header.topbar{ z-index:50; }
+  footer{ position:relative; z-index:2; }
+
+  .brand{ cursor:default; flex-shrink:1; min-width:0; }
+  .brand span.leaf{
+    display:inline-block;
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1), color .3s ease;
+  }
+  .brand:hover span.leaf{ transform:rotate(-8deg) scale(1.06); }
+
+  main.pages{
+    max-width:1500px;
+    margin:0 auto;
+    position:relative;
+    z-index:2;
+    padding:40px 40px 120px;
+  }
+  @media(max-width:720px){
+    main.pages{padding:24px 14px 100px;}
+  }
+
+  section.page{
+    margin-bottom:56px;
+    scroll-margin-top:var(--scroll-offset, 120px);
+    opacity:0;
+    transform: translateY(46px) scale(0.985);
+    filter: blur(6px);
+    transition:
+      opacity .9s cubic-bezier(.16,.8,.24,1),
+      transform .9s cubic-bezier(.16,.8,.24,1),
+      filter .9s cubic-bezier(.16,.8,.24,1);
+    will-change: opacity, transform, filter;
+  }
+  section.page.in-view{
+    opacity:1;
+    transform:none;
+    filter:blur(0);
+  }
+  section.page .frame{
+    position:relative;
+    border-radius:4px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,0.7);
+    background:var(--panel);
+  }
+  section.page img{
+    display:block;
+    width:100%;
+    height:auto;
+    transform: scale(1.045);
+    transition: transform 1.4s cubic-bezier(.16,.8,.24,1);
+  }
+  section.page.in-view img{
+    transform: scale(1);
+  }
+  section.page .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:12px;
+    padding:0 2px;
+    opacity:0;
+    transform:translateY(10px);
+    transition: opacity .7s ease .25s, transform .7s ease .25s;
+  }
+  section.page.in-view .meta{
+    opacity:1;
+    transform:none;
+  }
+  @media (prefers-reduced-motion: reduce){
+    section.page, section.page img, section.page .meta{
+      transition:none !important;
+      opacity:1 !important;
+      transform:none !important;
+      filter:none !important;
+    }
+  }
+  section.page .meta .label{
+    font-size:12px;
+    color:var(--text-dim);
+    letter-spacing:0.04em;
+  }
+  section.page .meta .idx{
+    font-size:11px;
+    color:var(--accent-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:30px 28px 40px;
+    text-align:center;
+    color:var(--text-dim);
+    font-size:12px;
+    letter-spacing:0.04em;
+  }
+  footer .leaf{color:var(--accent);}
+
+  /* ---------- Back to top ---------- */
+  #toTop{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:rgba(16,20,15,0.9);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:40;
+  }
+  #toTop.show{opacity:1; pointer-events:auto;}
+  #toTop:hover{transform:translateY(-3px);}
+</style>
+</head>
+<body>
+
+<div class="leaf-field" id="leafField" aria-hidden="true"></div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__main">
+    <div class="brand">
+      ANANAMI<span class="leaf">&nbsp;LANDSCAPE</span>
+      <small style="margin-left:6px;">DESIGN&nbsp;&nbsp;|&nbsp;&nbsp;BUILD&nbsp;&nbsp;|&nbsp;&nbsp;MAINTAIN</small>
+    </div>
+    <div class="topbar__utils">
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="pagecount"><strong id="curPage">1</strong> / 14</div>
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="topNav" aria-label="Buka menu">
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
+    </div>
+  </div>
+  <nav class="topnav" id="topNav" aria-label="Daftar isi">
+    <div class="topnav-indicator" id="topnavIndicator"></div>
+    <a href="#p1"><span class="num">01</span>About Ananami</a>
+    <a href="#p2"><span class="num">02</span>Legality &amp; Company</a>
+    <a href="#p3"><span class="num">03</span>Project Types</a>
+    <a href="#p4"><span class="num">04</span>Portfolio — Design</a>
+    <a href="#p5"><span class="num">05</span>Softscape Taman Villa</a>
+    <a href="#p6"><span class="num">06</span>Private House, Bali</a>
+    <a href="#p7"><span class="num">07</span>Landscape, Tabanan</a>
+    <a href="#p8"><span class="num">08</span>Garden Details</a>
+    <a href="#p9"><span class="num">09</span>Landscape Details</a>
+    <a href="#p10"><span class="num">10</span>Landscape Construction</a>
+    <a href="#p11"><span class="num">11</span>Landscape Maintenance</a>
+    <a href="#p12"><span class="num">12</span>Our Best Team</a>
+    <a href="#p13"><span class="num">13</span>Get in Touch</a>
+    <a href="#p14"><span class="num">14</span>Thank You</a>
+  </nav>
+</header>
+<div class="topnav-backdrop" id="topnavBackdrop" aria-hidden="true"></div>
+
+<main class="pages" id="pagesWrap">
+
+    <section class="page" id="p1">
+      <div class="frame"><img src="assets/page-01.jpg" alt="About Ananami Landscape" loading="eager"></div>
+      <div class="meta"><span class="label">About Ananami Landscape</span><span class="idx">01 / 14</span></div>
+    </section>
+
+    <section class="page" id="p2">
+      <div class="frame"><img src="assets/page-02.jpg" alt="Legality of the Company" loading="lazy"></div>
+      <div class="meta"><span class="label">Our Legality Company</span><span class="idx">02 / 14</span></div>
+    </section>
+
+    <section class="page" id="p3">
+      <div class="frame"><img src="assets/page-03.jpg" alt="Project Types" loading="lazy"></div>
+      <div class="meta"><span class="label">Project Types</span><span class="idx">03 / 14</span></div>
+    </section>
+
+    <section class="page" id="p4">
+      <div class="frame"><img src="assets/page-04.jpg" alt="Portfolio Landscape Design" loading="lazy"></div>
+      <div class="meta"><span class="label">Portfolio — Landscape Design</span><span class="idx">04 / 14</span></div>
+    </section>
+
+    <section class="page" id="p5">
+      <div class="frame"><img src="assets/page-05.jpg" alt="Softscape Taman Villa at Ciputra Resort Bali" loading="lazy"></div>
+      <div class="meta"><span class="label">Softscape Taman Villa — Ciputra Resort, Bali</span><span class="idx">05 / 14</span></div>
+    </section>
+
+    <section class="page" id="p6">
+      <div class="frame"><img src="assets/page-06.jpg" alt="Residential Project — Private House Bali" loading="lazy"></div>
+      <div class="meta"><span class="label">Residential Project — Private House, Bali</span><span class="idx">06 / 14</span></div>
+    </section>
+
+    <section class="page" id="p7">
+      <div class="frame"><img src="assets/page-07.jpg" alt="Landscape Design Tabanan Bali" loading="lazy"></div>
+      <div class="meta"><span class="label">Landscape Design — Tabanan, Bali</span><span class="idx">07 / 14</span></div>
+    </section>
+
+    <section class="page" id="p8">
+      <div class="frame"><img src="assets/page-08.jpg" alt="Garden Details" loading="lazy"></div>
+      <div class="meta"><span class="label">Garden Details</span><span class="idx">08 / 14</span></div>
+    </section>
+
+    <section class="page" id="p9">
+      <div class="frame"><img src="assets/page-09.jpg" alt="Landscape Details" loading="lazy"></div>
+      <div class="meta"><span class="label">Landscape Details</span><span class="idx">09 / 14</span></div>
+    </section>
+
+    <section class="page" id="p10">
+      <div class="frame"><img src="assets/page-10.jpg" alt="Landscape Construction" loading="lazy"></div>
+      <div class="meta"><span class="label">Landscape Construction</span><span class="idx">10 / 14</span></div>
+    </section>
+
+    <section class="page" id="p11">
+      <div class="frame"><img src="assets/page-11.jpg" alt="Landscape Maintenance" loading="lazy"></div>
+      <div class="meta"><span class="label">Landscape Maintenance</span><span class="idx">11 / 14</span></div>
+    </section>
+
+    <section class="page" id="p12">
+      <div class="frame"><img src="assets/page-12.jpg" alt="Our Best Team" loading="lazy"></div>
+      <div class="meta"><span class="label">Our Best Team</span><span class="idx">12 / 14</span></div>
+    </section>
+
+    <section class="page" id="p13">
+      <div class="frame"><img src="assets/page-13.jpg" alt="Get in Touch" loading="lazy"></div>
+      <div class="meta"><span class="label">Get in Touch</span><span class="idx">13 / 14</span></div>
+    </section>
+
+    <section class="page" id="p14">
+      <div class="frame"><img src="assets/page-14.jpg" alt="Thank You" loading="lazy"></div>
+      <div class="meta"><span class="label">Thank You</span><span class="idx">14 / 14</span></div>
+    </section>
+
+</main>
+
+<footer>
+  <span class="leaf">●</span> ANANAMI LANDSCAPE — Greener Spaces, Brighter Lives · ananamilandscape.co.id
+</footer>
+
+<div id="toTop" title="Kembali ke atas">↑</div>
+
+<div class="dotnav" id="dotNav"></div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lb-close" id="lbClose">✕</div>
+  <div class="lb-nav lb-prev" id="lbPrev">‹</div>
+  <img id="lbImg" src="" alt="">
+  <div class="lb-nav lb-next" id="lbNext">›</div>
+  <div class="lb-caption" id="lbCaption"></div>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section.page'));
+  const links = Array.from(document.querySelectorAll('nav.topnav a'));
+  const progressBar = document.getElementById('progressBar');
+  const curPage = document.getElementById('curPage');
+  const toTop = document.getElementById('toTop');
+  const topnavIndicator = document.getElementById('topnavIndicator');
+  const topNav = document.getElementById('topNav');
+  const topbar = document.getElementById('topbar');
+  const navToggle = document.getElementById('navToggle');
+  const topnavBackdrop = document.getElementById('topnavBackdrop');
+  const mobileNavMq = window.matchMedia('(max-width: 900px)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lastActive = -1;
+
+  function syncTopbarMetrics(){
+    if(!topbar) return;
+    const h = topbar.offsetHeight;
+    document.documentElement.style.setProperty('--topbar-h', h + 'px');
+    document.documentElement.style.setProperty('--scroll-offset', (h + 16) + 'px');
+  }
+
+  function setMobileNavOpen(open){
+    if(!mobileNavMq.matches) return;
+    topNav.classList.toggle('is-open', open);
+    navToggle.classList.toggle('is-active', open);
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    topnavBackdrop.classList.toggle('is-visible', open);
+    topnavBackdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    document.body.classList.toggle('nav-open', open);
+  }
+
+  function closeMobileNav(){
+    setMobileNavOpen(false);
+  }
+
+  navToggle.addEventListener('click', () => {
+    setMobileNavOpen(!topNav.classList.contains('is-open'));
+  });
+  topnavBackdrop.addEventListener('click', closeMobileNav);
+  links.forEach(a => a.addEventListener('click', closeMobileNav));
+  mobileNavMq.addEventListener('change', () => {
+    closeMobileNav();
+    syncTopbarMetrics();
+    updateNavIndicator(lastActive >= 0 ? lastActive : 0);
+  });
+
+  function updateNavIndicator(activeIndex){
+    const activeLink = links[activeIndex];
+    if(!activeLink || !topnavIndicator) return;
+    topnavIndicator.style.opacity = 1;
+    if(mobileNavMq.matches){
+      topnavIndicator.style.transform = `translateY(${activeLink.offsetTop}px)`;
+      topnavIndicator.style.height = activeLink.offsetHeight + 'px';
+    } else {
+      topnavIndicator.style.height = '2px';
+      topnavIndicator.style.width = activeLink.offsetWidth + 'px';
+      topnavIndicator.style.transform = `translateX(${activeLink.offsetLeft}px)`;
+      activeLink.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+  }
+
+  // ---------- Scroll progress, active nav, sliding indicator ----------
+  function onScroll(){
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = pct + '%';
+
+    topbar.classList.toggle('is-scrolled', scrollTop > 48);
+    toTop.classList.toggle('show', scrollTop > 600);
+
+    let activeIndex = 0;
+    const triggerLine = window.innerHeight * 0.35;
+    sections.forEach((sec, i) => {
+      const rect = sec.getBoundingClientRect();
+      if(rect.top <= triggerLine){ activeIndex = i; }
+    });
+
+    links.forEach((l, i) => l.classList.toggle('active', i === activeIndex));
+    document.querySelectorAll('.dotnav .dot').forEach((d, i) => d.classList.toggle('active', i === activeIndex));
+
+    if(activeIndex !== lastActive){
+      curPage.textContent = (activeIndex + 1);
+      curPage.classList.remove('bump');
+      void curPage.offsetWidth; // restart animation
+      curPage.classList.add('bump');
+      lastActive = activeIndex;
+      updateNavIndicator(activeIndex);
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', () => {
+    syncTopbarMetrics();
+    onScroll();
+    if(lastActive >= 0) updateNavIndicator(lastActive);
+  });
+  syncTopbarMetrics();
+  onScroll();
+
+  toTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+  // ---------- Reveal each page as it scrolls into view ----------
+  if('IntersectionObserver' in window && !reduceMotion){
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+    sections.forEach(sec => revealObserver.observe(sec));
+  } else {
+    sections.forEach(sec => sec.classList.add('in-view'));
+  }
+
+  // ---------- Dot-rail navigation (built from TOC data) ----------
+  const dotNav = document.getElementById('dotNav');
+  sections.forEach((sec, i) => {
+    const label = links[i] ? links[i].textContent.replace(/^\d+/, '').trim() : sec.id;
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.dataset.title = label;
+    dot.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth', block:'start'}));
+    dotNav.appendChild(dot);
+  });
+
+  // ---------- Cursor spotlight + tilt on each frame ----------
+  document.querySelectorAll('section.page .frame').forEach(frame => {
+    const zoomHint = document.createElement('div');
+    zoomHint.className = 'zoom-hint';
+    zoomHint.textContent = 'Klik untuk perbesar';
+    frame.appendChild(zoomHint);
+
+    if(!reduceMotion && window.matchMedia('(hover: hover)').matches){
+      frame.addEventListener('mousemove', (e) => {
+        const r = frame.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        const y = ((e.clientY - r.top) / r.height) * 100;
+        frame.style.setProperty('--mx', x + '%');
+        frame.style.setProperty('--my', y + '%');
+
+        const rotY = ((x - 50) / 50) * 3.5;
+        const rotX = -((y - 50) / 50) * 3.5;
+        frame.style.transform = `perspective(1200px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      });
+      frame.addEventListener('mouseleave', () => {
+        frame.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+      });
+    }
+  });
+
+  // ---------- Lightbox ----------
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbClose = document.getElementById('lbClose');
+  const lbPrev = document.getElementById('lbPrev');
+  const lbNext = document.getElementById('lbNext');
+  const lbCaption = document.getElementById('lbCaption');
+  let lbIndex = 0;
+
+  function openLightbox(i){
+    lbIndex = i;
+    const img = sections[i].querySelector('img');
+    lbImg.src = img.src;
+    lbImg.alt = img.alt;
+    lbImg.classList.remove('zoomed');
+    lbCaption.textContent = `${img.alt} — Halaman ${i + 1} / ${sections.length}`;
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function stepLightbox(delta){
+    lbIndex = (lbIndex + delta + sections.length) % sections.length;
+    openLightbox(lbIndex);
+  }
+
+  sections.forEach((sec, i) => {
+    sec.querySelector('.frame img').addEventListener('click', () => openLightbox(i));
+  });
+  lbImg.addEventListener('click', () => lbImg.classList.toggle('zoomed'));
+  lbClose.addEventListener('click', closeLightbox);
+  lbPrev.addEventListener('click', () => stepLightbox(-1));
+  lbNext.addEventListener('click', () => stepLightbox(1));
+  lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
+
+  // ---------- Keyboard navigation ----------
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && topNav.classList.contains('is-open')){
+      closeMobileNav();
+      return;
+    }
+    if(lightbox.classList.contains('open')){
+      if(e.key === 'Escape') closeLightbox();
+      if(e.key === 'ArrowRight') stepLightbox(1);
+      if(e.key === 'ArrowLeft') stepLightbox(-1);
+      return;
+    }
+    if(e.key === 'ArrowDown' || e.key === 'j'){
+      e.preventDefault();
+      const next = sections[Math.min(lastActive + 1, sections.length - 1)];
+      next.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+    if(e.key === 'ArrowUp' || e.key === 'k'){
+      e.preventDefault();
+      const prev = sections[Math.max(lastActive - 1, 0)];
+      prev.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+
+  // ---------- Floating leaf particles ----------
+  if(!reduceMotion){
+    const leafField = document.getElementById('leafField');
+    const LEAF_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 4C10 4 4 10 4 20C14 20 20 14 20 4Z" fill="currentColor"/>
+    </svg>`;
+    const total = window.innerWidth < 700 ? 7 : 14;
+    for(let i = 0; i < total; i++){
+      const leaf = document.createElement('div');
+      leaf.className = 'leaf-particle';
+      leaf.innerHTML = LEAF_SVG;
+      const size = 12 + Math.random() * 14;
+      leaf.style.left = Math.random() * 100 + 'vw';
+      leaf.style.width = size + 'px';
+      leaf.style.height = size + 'px';
+      leaf.style.color = Math.random() > 0.5 ? '#9fd356' : '#6f9b3f';
+      leaf.style.setProperty('--drift', (Math.random() * 160 - 80) + 'px');
+      const duration = 14 + Math.random() * 16;
+      leaf.style.animationDuration = duration + 's';
+      leaf.style.animationDelay = (Math.random() * duration) + 's';
+      leafField.appendChild(leaf);
+    }
+  }
+
+  window.addEventListener('load', () => {
+    document.body.classList.add('loaded');
+    syncTopbarMetrics();
+    updateNavIndicator(0);
+  });
+</script>
+
+</body>
+</html>
